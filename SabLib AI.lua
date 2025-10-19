@@ -50,7 +50,7 @@ function Lib:Window(Info)
 	-- Frame principal
 	local MainFrame = Instance.new("Frame")
 	MainFrame.Name = "MainFrame"
-	MainFrame.Size = UDim2.new(0, 400, 0, 500)
+	MainFrame.Size = UDim2.new(0, 470, 0, 340)
 	MainFrame.Position = UDim2.new(0.5, -200, 0.5, -250)
 	MainFrame.BackgroundColor3 = theme.Background
 	MainFrame.BackgroundTransparency = 1
