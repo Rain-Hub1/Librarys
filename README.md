@@ -1,7 +1,7 @@
 ## `Full Example` • AI
 
 ```lua
-local Lib = require(script.Parent.Lib) -- Caminho para a biblioteca
+local Lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/Rain-Hub1/Librarys/refs/heads/main/SabLib%20AI.lua"))()
 
 local Win = Lib:Window({
     Title = "Minha Interface",
