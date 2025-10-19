@@ -5,7 +5,7 @@ local Lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/Rain-Hub1
 
 local Win = Lib:Window({
     Title = "Minha Interface",
-    OpenButton = Enum.KeyCode.RightShift,
+    OpenButton = true,
     Theme = "Darker"
 })
 
