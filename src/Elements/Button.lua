@@ -1,4 +1,6 @@
 --!strict
+local TweenService = game:GetService("TweenService")
+
 local Button = {}
 
 function Button:Create(Container, Info, theme)
@@ -15,8 +17,13 @@ function Button:Create(Container, Info, theme)
     ButtonFrame.Parent = Container
     
     local ButtonCorner = Instance.new("UICorner")
-    ButtonCorner.CornerRadius = UDim.new(0, 8)
+    ButtonCorner.CornerRadius = UDim.new(0, 6)
     ButtonCorner.Parent = ButtonFrame
+    
+    local ButtonStroke = Instance.new("UIStroke")
+    ButtonStroke.Color = Color3.fromRGB(60, 60, 70)
+    ButtonStroke.Thickness = 1
+    ButtonStroke.Parent = ButtonFrame
     
     local Button = Instance.new("TextButton")
     Button.Name = "Button"
@@ -27,24 +34,24 @@ function Button:Create(Container, Info, theme)
     
     local NameLabel = Instance.new("TextLabel")
     NameLabel.Name = "NameLabel"
-    NameLabel.Size = UDim2.new(1, -15, 0, 20)
-    NameLabel.Position = UDim2.new(0, 10, 0, 10)
+    NameLabel.Size = UDim2.new(1, -16, 0, 16)
+    NameLabel.Position = UDim2.new(0, 8, 0, 6)
     NameLabel.BackgroundTransparency = 1
-    NameLabel.Text = Name
+    NameLabel.Text = string.upper(Name)
     NameLabel.TextColor3 = theme.Text
-    NameLabel.TextSize = 15
-    NameLabel.Font = Enum.Font.GothamBold
+    NameLabel.TextSize = 12
+    NameLabel.Font = Enum.Font.GothamSemibold
     NameLabel.TextXAlignment = Enum.TextXAlignment.Left
     NameLabel.Parent = ButtonFrame
     
     local DescLabel = Instance.new("TextLabel")
     DescLabel.Name = "DescLabel"
-    DescLabel.Size = UDim2.new(1, -15, 0, 0)
-    DescLabel.Position = UDim2.new(0, 10, 0, 35)
+    DescLabel.Size = UDim2.new(1, -16, 0, 0)
+    DescLabel.Position = UDim2.new(0, 8, 0, 24)
     DescLabel.BackgroundTransparency = 1
     DescLabel.Text = Desc
     DescLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
-    DescLabel.TextSize = 13
+    DescLabel.TextSize = 10
     DescLabel.Font = Enum.Font.Gotham
     DescLabel.TextXAlignment = Enum.TextXAlignment.Left
     DescLabel.TextYAlignment = Enum.TextYAlignment.Top
@@ -54,20 +61,20 @@ function Button:Create(Container, Info, theme)
     
     -- Ajustar altura
     task.defer(function()
-        local descHeight = Desc == "" and 0 or (DescLabel.TextBounds.Y + 5)
-        ButtonFrame.Size = UDim2.new(1, 0, 0, 45 + descHeight)
+        local descHeight = Desc == "" and 0 or (DescLabel.TextBounds.Y + 8)
+        ButtonFrame.Size = UDim2.new(1, 0, 0, 24 + descHeight)
     end)
     
     -- Efeitos de hover
     Button.MouseEnter:Connect(function()
-        local tween = game:GetService("TweenService"):Create(ButtonFrame, TweenInfo.new(0.2), {
+        local tween = TweenService:Create(ButtonFrame, TweenInfo.new(0.15), {
             BackgroundColor3 = Color
         })
         tween:Play()
     end)
     
     Button.MouseLeave:Connect(function()
-        local tween = game:GetService("TweenService"):Create(ButtonFrame, TweenInfo.new(0.2), {
+        local tween = TweenService:Create(ButtonFrame, TweenInfo.new(0.15), {
             BackgroundColor3 = theme.Foreground
         })
         tween:Play()
@@ -80,14 +87,14 @@ function Button:Create(Container, Info, theme)
     local ButtonAPI = {}
     
     function ButtonAPI:SetName(NewName)
-        NameLabel.Text = NewName or Name
+        NameLabel.Text = string.upper(NewName or Name)
     end
     
     function ButtonAPI:SetDesc(NewDesc)
         DescLabel.Text = NewDesc or Desc
         task.defer(function()
-            local descHeight = NewDesc == "" and 0 or (DescLabel.TextBounds.Y + 5)
-            ButtonFrame.Size = UDim2.new(1, 0, 0, 45 + descHeight)
+            local descHeight = NewDesc == "" and 0 or (DescLabel.TextBounds.Y + 8)
+            ButtonFrame.Size = UDim2.new(1, 0, 0, 24 + descHeight)
         end)
     end
     
