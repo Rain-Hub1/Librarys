@@ -36,17 +36,17 @@ function Window:Create(Info, Lib)
     if OpenButton == true then
         ToggleButton = Instance.new("TextButton")
         ToggleButton.Name = "ToggleButton"
-        ToggleButton.Size = UDim2.new(0, 120, 0, 40)
+        ToggleButton.Size = UDim2.new(0, 100, 0, 30)
         ToggleButton.Position = UDim2.new(0, 20, 0, 20)
         ToggleButton.BackgroundColor3 = theme.Accent
-        ToggleButton.Text = "Abrir UI"
+        ToggleButton.Text = "OPEN UI"
         ToggleButton.TextColor3 = theme.Text
-        ToggleButton.TextSize = 14
-        ToggleButton.Font = Enum.Font.GothamBold
+        ToggleButton.TextSize = 12
+        ToggleButton.Font = Enum.Font.GothamSemibold
         ToggleButton.Parent = ScreenGui
         
         local ToggleCorner = Instance.new("UICorner")
-        ToggleCorner.CornerRadius = UDim.new(0, 8)
+        ToggleCorner.CornerRadius = UDim.new(0, 6)
         ToggleCorner.Parent = ToggleButton
     end
 
@@ -63,7 +63,7 @@ function Window:Create(Info, Lib)
 
     -- Efeitos visuais
     local UICorner = Instance.new("UICorner")
-    UICorner.CornerRadius = UDim.new(0, 12)
+    UICorner.CornerRadius = UDim.new(0, 8)
     UICorner.Parent = MainFrame
 
     local UIStroke = Instance.new("UIStroke")
@@ -72,40 +72,40 @@ function Window:Create(Info, Lib)
     UIStroke.Transparency = 1
     UIStroke.Parent = MainFrame
 
-    -- Header
+    -- Header (TitleBar reduzida)
     local Header = Instance.new("Frame")
     Header.Name = "Header"
-    Header.Size = UDim2.new(1, 0, 0, 45)
+    Header.Size = UDim2.new(1, 0, 0, 35) -- Header menor
     Header.Position = UDim2.new(0, 0, 0, 0)
     Header.BackgroundColor3 = theme.Foreground
     Header.BackgroundTransparency = 1
     Header.Parent = MainFrame
 
     local HeaderCorner = Instance.new("UICorner")
-    HeaderCorner.CornerRadius = UDim.new(0, 12)
+    HeaderCorner.CornerRadius = UDim.new(0, 8)
     HeaderCorner.Parent = Header
 
     local TitleLabel = Instance.new("TextLabel")
     TitleLabel.Name = "TitleLabel"
     TitleLabel.Size = UDim2.new(1, -40, 1, 0)
-    TitleLabel.Position = UDim2.new(0, 15, 0, 0)
+    TitleLabel.Position = UDim2.new(0, 12, 0, 0)
     TitleLabel.BackgroundTransparency = 1
-    TitleLabel.Text = Title
+    TitleLabel.Text = string.upper(Title)
     TitleLabel.TextColor3 = theme.Text
-    TitleLabel.TextSize = 18
-    TitleLabel.Font = Enum.Font.GothamBold
+    TitleLabel.TextSize = 14
+    TitleLabel.Font = Enum.Font.GothamSemibold
     TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
     TitleLabel.Parent = Header
 
     local CloseButton = Instance.new("TextButton")
     CloseButton.Name = "CloseButton"
-    CloseButton.Size = UDim2.new(0, 30, 0, 30)
-    CloseButton.Position = UDim2.new(1, -35, 0.5, -15)
+    CloseButton.Size = UDim2.new(0, 25, 0, 25)
+    CloseButton.Position = UDim2.new(1, -30, 0.5, -12.5)
     CloseButton.BackgroundColor3 = theme.Error
     CloseButton.BackgroundTransparency = 1
     CloseButton.Text = "×"
     CloseButton.TextColor3 = theme.Text
-    CloseButton.TextSize = 20
+    CloseButton.TextSize = 16
     CloseButton.Font = Enum.Font.GothamBold
     CloseButton.Parent = Header
 
@@ -113,22 +113,61 @@ function Window:Create(Info, Lib)
     CloseCorner.CornerRadius = UDim.new(1, 0)
     CloseCorner.Parent = CloseButton
 
-    -- Container de conteúdo
-    local ContentContainer = Instance.new("ScrollingFrame")
-    ContentContainer.Name = "ContentContainer"
-    ContentContainer.Size = UDim2.new(1, -20, 1, -65)
-    ContentContainer.Position = UDim2.new(0, 10, 0, 55)
-    ContentContainer.BackgroundTransparency = 1
-    ContentContainer.BorderSizePixel = 0
-    ContentContainer.ScrollBarThickness = 4
-    ContentContainer.ScrollBarImageColor3 = theme.Accent
-    ContentContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
-    ContentContainer.AutomaticCanvasSize = Enum.AutomaticSize.Y
-    ContentContainer.Parent = MainFrame
+    -- Container de abas
+    local TabContainer = Instance.new("Frame")
+    TabContainer.Name = "TabContainer"
+    TabContainer.Size = UDim2.new(1, -20, 0, 35)
+    TabContainer.Position = UDim2.new(0, 10, 0, 40)
+    TabContainer.BackgroundTransparency = 1
+    TabContainer.Parent = MainFrame
 
-    local UIListLayout = Instance.new("UIListLayout")
-    UIListLayout.Padding = UDim.new(0, 12)
-    UIListLayout.Parent = ContentContainer
+    local TabLayout = Instance.new("UIListLayout")
+    TabLayout.Padding = UDim.new(0, 5)
+    TabLayout.FillDirection = Enum.FillDirection.Horizontal
+    TabLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+    TabLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+    TabLayout.Parent = TabContainer
+
+    -- Sistema de abas
+    local tabs = {}
+    local currentTab = nil
+    local tabContents = {}
+
+    -- Função para mudar de aba
+    local function switchTab(tabName)
+        -- Esconder todos os conteúdos
+        for name, content in pairs(tabContents) do
+            content.Visible = false
+        end
+        
+        -- Desselecionar todas as abas
+        for _, tab in ipairs(tabs) do
+            tab:SetSelected(false)
+        end
+        
+        -- Mostrar conteúdo da aba selecionada e selecionar a aba
+        if tabContents[tabName] then
+            tabContents[tabName].Visible = true
+            currentTab = tabName
+        end
+    end
+
+    -- Container de conteúdo principal (para quando não há abas)
+    local MainContent = Instance.new("ScrollingFrame")
+    MainContent.Name = "MainContent"
+    MainContent.Size = UDim2.new(1, -20, 1, -80)
+    MainContent.Position = UDim2.new(0, 10, 0, 80)
+    MainContent.BackgroundTransparency = 1
+    MainContent.BorderSizePixel = 0
+    MainContent.ScrollBarThickness = 4
+    MainContent.ScrollBarImageColor3 = theme.Accent
+    MainContent.CanvasSize = UDim2.new(0, 0, 0, 0)
+    MainContent.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    MainContent.Parent = MainFrame
+
+    local MainContentLayout = Instance.new("UIListLayout")
+    MainContentLayout.Padding = UDim.new(0, 8)
+    MainContentLayout.Parent = MainContent
 
     -- Sistema de arrastar
     local isDragging = false
@@ -197,7 +236,7 @@ function Window:Create(Info, Lib)
         strokeTween:Play()
         
         if ToggleButton then
-            ToggleButton.Text = "Fechar UI"
+            ToggleButton.Text = "CLOSE UI"
         end
     end
 
@@ -225,7 +264,7 @@ function Window:Create(Info, Lib)
         end)
         
         if ToggleButton then
-            ToggleButton.Text = "Abrir UI"
+            ToggleButton.Text = "OPEN UI"
         end
     end
 
@@ -261,33 +300,122 @@ function Window:Create(Info, Lib)
     -- API da janela
     local WindowAPI = {}
 
+    -- Função para criar abas
+    function WindowAPI:Tab(Info)
+        local Name = Info.Name or "Tab"
+        local Icon = Info.Icon
+        local Locked = Info.Locked or false
+        
+        -- Criar container de conteúdo para a aba
+        local TabContent = Instance.new("ScrollingFrame")
+        TabContent.Name = "TabContent_" .. Name
+        TabContent.Size = UDim2.new(1, -20, 1, -80)
+        TabContent.Position = UDim2.new(0, 10, 0, 80)
+        TabContent.BackgroundTransparency = 1
+        TabContent.BorderSizePixel = 0
+        TabContent.ScrollBarThickness = 4
+        TabContent.ScrollBarImageColor3 = theme.Accent
+        TabContent.CanvasSize = UDim2.new(0, 0, 0, 0)
+        TabContent.AutomaticCanvasSize = Enum.AutomaticSize.Y
+        TabContent.Visible = false
+        TabContent.Parent = MainFrame
+
+        local TabContentLayout = Instance.new("UIListLayout")
+        TabContentLayout.Padding = UDim.new(0, 8)
+        TabContentLayout.Parent = TabContent
+        
+        tabContents[Name] = TabContent
+        
+        -- Criar o botão da aba
+        local tab = Lib.Elements.Tab:Create(TabContainer, {
+            Name = Name,
+            Icon = Icon,
+            Locked = Locked
+        }, theme, function()
+            if not Locked then
+                switchTab(Name)
+                tab:SetSelected(true)
+            end
+        end)
+        
+        table.insert(tabs, tab)
+        
+        -- Se for a primeira aba, ativar automaticamente
+        if #tabs == 1 and not Locked then
+            switchTab(Name)
+            tab:SetSelected(true)
+        end
+        
+        -- API da aba
+        local TabAPI = {}
+        
+        function TabAPI:Paragraph(Info)
+            return Lib.Elements.Paragraph:Create(TabContent, Info, theme)
+        end
+        
+        function TabAPI:Button(Info)
+            return Lib.Elements.Button:Create(TabContent, Info, theme)
+        end
+        
+        function TabAPI:Toggle(Info)
+            return Lib.Elements.Toggle:Create(TabContent, Info, theme)
+        end
+        
+        function TabAPI:Dropdown(Info)
+            return Lib.Elements.Dropdown:Create(TabContent, Info, theme)
+        end
+        
+        function TabAPI:SetLocked(locked)
+            Locked = locked
+            tab:SetLocked(locked)
+        end
+        
+        function TabAPI:SetName(newName)
+            tab:SetName(newName)
+        end
+        
+        function TabAPI:SetIcon(newIcon)
+            tab:SetIcon(newIcon)
+        end
+        
+        function TabAPI:Destroy()
+            tab:Destroy()
+            if tabContents[Name] then
+                tabContents[Name]:Destroy()
+                tabContents[Name] = nil
+            end
+        end
+        
+        return TabAPI
+    end
+
+    -- Funções para adicionar elementos ao conteúdo principal (sem abas)
     function WindowAPI:Paragraph(Info)
-        return Lib.Elements.Paragraph:Create(ContentContainer, Info, theme)
+        return Lib.Elements.Paragraph:Create(MainContent, Info, theme)
     end
 
     function WindowAPI:Button(Info)
-        return Lib.Elements.Button:Create(ContentContainer, Info, theme)
+        return Lib.Elements.Button:Create(MainContent, Info, theme)
     end
 
     function WindowAPI:Toggle(Info)
-        return Lib.Elements.Toggle:Create(ContentContainer, Info, theme)
+        return Lib.Elements.Toggle:Create(MainContent, Info, theme)
     end
 
     function WindowAPI:Dropdown(Info)
-        return Lib.Elements.Dropdown:Create(ContentContainer, Info, theme)
+        return Lib.Elements.Dropdown:Create(MainContent, Info, theme)
     end
 
     function WindowAPI:Notify(Info)
-        -- Criar notificação simples diretamente
-        local notifications = {}
+        -- Criar notificação simples
         local Title = Info.Title or "Notification"
         local Desc = Info.Desc or ""
         local Time = Info.Time or 5
         
         local NotificationFrame = Instance.new("Frame")
         NotificationFrame.Name = "Notification"
-        NotificationFrame.Size = UDim2.new(0, 300, 0, 80)
-        NotificationFrame.Position = UDim2.new(1, 320, 0.1, 0)
+        NotificationFrame.Size = UDim2.new(0, 280, 0, 70)
+        NotificationFrame.Position = UDim2.new(1, 300, 0.1, 0)
         NotificationFrame.BackgroundColor3 = theme.Foreground
         NotificationFrame.Parent = ScreenGui
         
@@ -297,29 +425,29 @@ function Window:Create(Info, Lib)
         
         local UIStroke = Instance.new("UIStroke")
         UIStroke.Color = theme.Accent
-        UIStroke.Thickness = 2
+        UIStroke.Thickness = 1
         UIStroke.Parent = NotificationFrame
         
         local TitleLabel = Instance.new("TextLabel")
         TitleLabel.Name = "TitleLabel"
-        TitleLabel.Size = UDim2.new(1, -20, 0, 25)
+        TitleLabel.Size = UDim2.new(1, -20, 0, 20)
         TitleLabel.Position = UDim2.new(0, 10, 0, 10)
         TitleLabel.BackgroundTransparency = 1
-        TitleLabel.Text = Title
+        TitleLabel.Text = string.upper(Title)
         TitleLabel.TextColor3 = theme.Text
-        TitleLabel.TextSize = 16
-        TitleLabel.Font = Enum.Font.GothamBold
+        TitleLabel.TextSize = 12
+        TitleLabel.Font = Enum.Font.GothamSemibold
         TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
         TitleLabel.Parent = NotificationFrame
         
         local DescLabel = Instance.new("TextLabel")
         DescLabel.Name = "DescLabel"
-        DescLabel.Size = UDim2.new(1, -20, 0, 35)
-        DescLabel.Position = UDim2.new(0, 10, 0, 35)
+        DescLabel.Size = UDim2.new(1, -20, 0, 40)
+        DescLabel.Position = UDim2.new(0, 10, 0, 30)
         DescLabel.BackgroundTransparency = 1
         DescLabel.Text = Desc
         DescLabel.TextColor3 = theme.Text
-        DescLabel.TextSize = 14
+        DescLabel.TextSize = 10
         DescLabel.Font = Enum.Font.Gotham
         DescLabel.TextXAlignment = Enum.TextXAlignment.Left
         DescLabel.TextYAlignment = Enum.TextYAlignment.Top
@@ -328,14 +456,14 @@ function Window:Create(Info, Lib)
         
         -- Animação de entrada
         local tweenIn = game:GetService("TweenService"):Create(NotificationFrame, TweenInfo.new(0.3), {
-            Position = UDim2.new(1, -310, 0.1, 0)
+            Position = UDim2.new(1, -290, 0.1, 0)
         })
         tweenIn:Play()
         
         -- Remover após o tempo
         task.delay(Time, function()
             local tweenOut = game:GetService("TweenService"):Create(NotificationFrame, TweenInfo.new(0.3), {
-                Position = UDim2.new(1, 320, 0.1, 0)
+                Position = UDim2.new(1, 300, 0.1, 0)
             })
             tweenOut:Play()
             
