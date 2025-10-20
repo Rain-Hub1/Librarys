@@ -1,42 +1,407 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Simple Calculator</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>CalcAI — Calculadora Moderna</title>
+  <meta name="description" content="Calculadora moderna com UI tipo aplicação de IA — responsiva, teclado e histórico (simples)" />
+  <style>
+    :root{
+      --bg-1: #0b1221;
+      --bg-2: #071020;
+      --card: rgba(255,255,255,0.04);
+      --glass: rgba(255,255,255,0.03);
+      --accent: #6ee7b7;
+      --accent-2: #60a5fa;
+      --muted: #9aa6b2;
+      --btn: #0f1724;
+      --op: #f59e0b;
+      --danger: #fb7185;
+      --glass-border: rgba(255,255,255,0.06);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background: radial-gradient(1200px 600px at 10% 10%, rgba(96,165,250,0.06), transparent 8%),
+                  radial-gradient(1000px 500px at 90% 90%, rgba(110,231,183,0.03), transparent 8%),
+                  linear-gradient(180deg,var(--bg-1),var(--bg-2));
+      color: #e6eef6;
+      -webkit-font-smoothing:antialiased;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:28px;
+    }
+
+    .app {
+      width: 1024px;
+      max-width: 96vw;
+      min-height: 640px;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 28px;
+      align-items: stretch;
+    }
+
+    /* Sidebar */
+    .sidebar{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:16px;
+      padding:22px;
+      box-shadow: 0 10px 30px rgba(2,6,23,0.6);
+      border: 1px solid var(--glass-border);
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+    }
+
+    .brand{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    .logo{
+      width:48px;height:48px;border-radius:10px;
+      background: linear-gradient(135deg,var(--accent-2),var(--accent));
+      display:flex;align-items:center;justify-content:center;
+      font-weight:700;color:#07203a;font-size:20px;
+      box-shadow: 0 6px 18px rgba(96,165,250,0.08), inset 0 -4px 12px rgba(255,255,255,0.06);
+    }
+    .brand h1{
+      margin:0;font-size:16px;letter-spacing:-0.2px;
+    }
+    .brand p{margin:0;font-size:12px;color:var(--muted)}
+
+    .nav {
+      display:flex;flex-direction:column;gap:8px;margin-top:8px;
+    }
+    .nav button{
+      background:transparent;color:var(--muted);border:0;padding:10px;border-radius:8px;text-align:left;
+      cursor:pointer;font-size:14px;display:flex;gap:10px;align-items:center;
+    }
+    .nav button.active{background:rgba(255,255,255,0.02);color:var(--accent-2);box-shadow:inset 0 1px 0 rgba(255,255,255,0.02)}
+    .muted{color:var(--muted);font-size:13px}
+
+    /* Main panel */
+    .panel{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:16px;padding:20px;border:1px solid var(--glass-border);
+      box-shadow: 0 10px 40px rgba(2,6,23,0.6);
+      display:flex;flex-direction:column;gap:18px;
+    }
+
+    .topbar{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+    }
+    .topbar .title{font-size:14px}
+    .controls{display:flex;gap:8px;align-items:center}
+    .icon-btn{
+      background:transparent;border:1px solid rgba(255,255,255,0.03);padding:8px;border-radius:10px;color:var(--muted);
+      cursor:pointer;font-size:14px;
+    }
+
+    /* Display card */
+    .display-card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
+      border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,0.03);
+      display:flex;flex-direction:column;gap:12px;
+    }
+    .display-row{
+      display:flex;justify-content:space-between;align-items:center;gap:12px;
+    }
+    .history {
+      color:var(--muted);font-size:14px;opacity:0.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .result{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+      font-size:40px;font-weight:600;color:#fff;display:flex;gap:8px;align-items:center;
+    }
+    .result small{font-size:14px;color:var(--muted);font-weight:500}
+
+    /* keypad */
+    .keypad{
+      margin-top:6px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
+    }
+    .key {
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border:1px solid rgba(255,255,255,0.03);
+      color:var(--muted);padding:18px;border-radius:10px;font-size:16px;cursor:pointer;
+      transition:transform .06s ease, box-shadow .08s ease, background .15s;
+      box-shadow: 0 6px 14px rgba(2,6,23,0.35);
+    }
+    .key:active{transform:translateY(2px)}
+    .key.operator{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#042033;font-weight:700}
+    .key.wide{grid-column:1 / span 2}
+    .key.danger{background:linear-gradient(90deg,#fb7185,#f97316);color:#071025;font-weight:700}
+    
+    .bottom-row{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-top:auto}
+    .hint{color:var(--muted);font-size:13px}
+
+    /* responsive */
+    @media (max-width:880px){
+      .app{grid-template-columns: 1fr;min-height:640px}
+      .sidebar{order:2}
+    }
+
+  </style>
 </head>
 <body>
-  <main class="calculator" role="application" aria-label="Simple calculator">
-    <div class="display" id="display" aria-live="polite">0</div>
+  <div class="app" role="application" aria-label="Calculadora moderna">
+    <aside class="sidebar" aria-hidden="false">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">CA</div>
+        <div>
+          <h1>CalcAI</h1>
+          <p>Calculadora profissional</p>
+        </div>
+      </div>
 
-    <div class="buttons">
-      <button class="btn control" data-action="clear" title="Clear (C)">C</button>
-      <button class="btn control" data-action="back" title="Backspace">⌫</button>
-      <button class="btn operator" data-value="%" title="Modulo">%</button>
-      <button class="btn operator" data-value="÷" title="Divide">÷</button>
+      <nav class="nav" aria-label="navegação">
+        <button class="active" title="Calculadora">Calculadora</button>
+        <button title="Histórico">Histórico</button>
+        <button title="Configurações">Configurações</button>
+      </nav>
 
-      <button class="btn" data-value="7">7</button>
-      <button class="btn" data-value="8">8</button>
-      <button class="btn" data-value="9">9</button>
-      <button class="btn operator" data-value="×" title="Multiply">×</button>
+      <div style="margin-top:auto;">
+        <div class="muted">Dicas</div>
+        <p class="muted" style="margin-top:8px;font-size:13px">
+          Use teclado para digitar, Enter para calcular, Backspace para apagar. Pressione ⌘/Ctrl+C para copiar o resultado.
+        </p>
+      </div>
+    </aside>
 
-      <button class="btn" data-value="4">4</button>
-      <button class="btn" data-value="5">5</button>
-      <button class="btn" data-value="6">6</button>
-      <button class="btn operator" data-value="-" title="Subtract">−</button>
+    <main class="panel">
+      <div class="topbar" role="region" aria-label="barra superior">
+        <div class="title">Calculadora — interface moderna</div>
+        <div class="controls">
+          <button class="icon-btn" id="copyBtn" title="Copiar resultado">Copiar</button>
+          <button class="icon-btn" id="themeBtn" title="Alternar tema">Tema</button>
+        </div>
+      </div>
 
-      <button class="btn" data-value="1">1</button>
-      <button class="btn" data-value="2">2</button>
-      <button class="btn" data-value="3">3</button>
-      <button class="btn operator" data-value="+" title="Add">+</button>
+      <section class="display-card" aria-live="polite">
+        <div class="display-row">
+          <div class="history" id="miniHistory">0</div>
+          <div class="result" id="display">0</div>
+        </div>
 
-      <button class="btn wide" data-value="0">0</button>
-      <button class="btn" data-value=".">.</button>
-      <button class="btn equals" data-action="equals" title="Equals">=</button>
-    </div>
-  </main>
+        <div class="keypad" role="grid" aria-label="teclado da calculadora">
+          <button class="key danger" data-action="clear">C</button>
+          <button class="key" data-action="back">⌫</button>
+          <button class="key" data-value="%" title="módulo">%</button>
+          <button class="key operator" data-value="÷">÷</button>
 
-  <script src="script.js"></script>
+          <button class="key" data-value="7">7</button>
+          <button class="key" data-value="8">8</button>
+          <button class="key" data-value="9">9</button>
+          <button class="key operator" data-value="×">×</button>
+
+          <button class="key" data-value="4">4</button>
+          <button class="key" data-value="5">5</button>
+          <button class="key" data-value="6">6</button>
+          <button class="key operator" data-value="-">−</button>
+
+          <button class="key" data-value="1">1</button>
+          <button class="key" data-value="2">2</button>
+          <button class="key" data-value="3">3</button>
+          <button class="key operator" data-value="+">+</button>
+
+          <button class="key wide" data-value="0">0</button>
+          <button class="key" data-value=".">.</button>
+          <button class="key operator" data-action="equals" style="background:linear-gradient(90deg,#60a5fa,#6ee7b7);color:#042033">=</button>
+        </div>
+
+        <div class="bottom-row">
+          <div class="hint">Suporta + − × ÷ % e ponto decimal</div>
+          <div style="display:flex;gap:10px">
+            <button class="icon-btn" id="historyClear" title="Limpar histórico">Limpar Histórico</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    (function(){
+      const displayEl = document.getElementById('display');
+      const miniHistory = document.getElementById('miniHistory');
+      const keys = document.querySelectorAll('.key');
+      const copyBtn = document.getElementById('copyBtn');
+      const themeBtn = document.getElementById('themeBtn');
+      const historyClear = document.getElementById('historyClear');
+
+      let current = '0';
+      let lastWasEval = false;
+      let history = [];
+
+      function isOperator(ch){
+        return ['+','−','-','×','÷','*','/','%'].includes(ch);
+      }
+
+      function update(){
+        displayEl.textContent = current || '0';
+        miniHistory.textContent = history.slice(-1)[0] || '0';
+      }
+
+      function pushValue(val){
+        if (lastWasEval && !isOperator(val)){
+          current = (val === '.') ? '0.' : val;
+          lastWasEval = false;
+          return update();
+        }
+        lastWasEval = false;
+
+        // prevent leading zeroes
+        if (current === '0' && val !== '.' && !isOperator(val)){
+          current = val;
+          return update();
+        }
+
+        // prevent multiple dots in same number
+        if (val === '.'){
+          const lastOpIndex = Math.max(...['+','-','−','×','÷','*','/','%'].map(o => current.lastIndexOf(o)));
+          const lastNum = current.slice(lastOpIndex + 1);
+          if (lastNum.includes('.')) return;
+        }
+
+        // replace consecutive operators
+        if (isOperator(val) && isOperator(current.slice(-1))){
+          current = current.slice(0,-1) + val;
+          return update();
+        }
+
+        current += val;
+        update();
+      }
+
+      function clearAll(){
+        current = '0';
+        lastWasEval = false;
+        update();
+      }
+
+      function backspace(){
+        if (lastWasEval){
+          current = '0';
+          lastWasEval = false;
+          return update();
+        }
+        if (current.length <= 1){
+          current = '0';
+        } else {
+          current = current.slice(0, -1);
+        }
+        update();
+      }
+
+      function safeEvaluate(expr){
+        // map display operators to JS
+        const mapped = expr.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-');
+        // allow only digits, operators, parentheses, dot, spaces
+        if (!/^[0-9+\-*/%.() ]+$/.test(mapped)) return null;
+        // avoid trailing operator
+        let clean = mapped;
+        while (clean && isOperator(clean.slice(-1))) clean = clean.slice(0,-1);
+        if (!clean) return null;
+        try {
+          const val = Function('"use strict"; return ('+ clean +')')();
+          if (typeof val === 'number' && Number.isFinite(val)){
+            // limit precision
+            const p = parseFloat(val.toPrecision(12));
+            return p;
+          }
+          return null;
+        } catch(e){
+          return null;
+        }
+      }
+
+      function evaluate(){
+        const res = safeEvaluate(current);
+        if (res === null){
+          displayEl.textContent = 'Erro';
+          current = '0';
+          lastWasEval = true;
+          return;
+        }
+        history.push(current + ' = ' + res);
+        current = String(res);
+        lastWasEval = true;
+        update();
+      }
+
+      keys.forEach(k => {
+        k.addEventListener('click', () => {
+          const action = k.dataset.action;
+          const val = k.dataset.value;
+          if (action === 'clear') return clearAll();
+          if (action === 'back') return backspace();
+          if (action === 'equals') return evaluate();
+          if (val) return pushValue(val);
+        });
+      });
+
+      // keyboard support
+      window.addEventListener('keydown', (e) => {
+        const key = e.key;
+        if ((key >= '0' && key <= '9') || key === '.') {
+          pushValue(key); e.preventDefault(); return;
+        }
+        if (key === '+' || key === '-' || key === '*' || key === '/' || key === '%'){
+          const map = {'*':'×','/':'÷'};
+          pushValue(map[key] || key);
+          e.preventDefault(); return;
+        }
+        if (key === 'Enter' || key === '='){ evaluate(); e.preventDefault(); return; }
+        if (key === 'Backspace'){ backspace(); e.preventDefault(); return; }
+        if (key === 'Escape' || key.toLowerCase() === 'c'){ clearAll(); e.preventDefault(); return; }
+      });
+
+      // copy result
+      copyBtn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(displayEl.textContent || '');
+          copyBtn.textContent = 'Copiado';
+          setTimeout(()=> copyBtn.textContent = 'Copiar', 1200);
+        } catch(err){
+          copyBtn.textContent = 'Erro';
+          setTimeout(()=> copyBtn.textContent = 'Copiar', 1200);
+        }
+      });
+
+      // simple theme toggle (light/dark-ish tweak)
+      let light = false;
+      themeBtn.addEventListener('click', () => {
+        light = !light;
+        if (light){
+          document.documentElement.style.setProperty('--bg-1', '#f6f8fb');
+          document.documentElement.style.setProperty('--bg-2', '#eef2f7');
+          document.documentElement.style.setProperty('--card', 'rgba(2,6,23,0.03)');
+          document.documentElement.style.setProperty('--muted', '#475569');
+          document.documentElement.style.setProperty('--btn', '#ffffff');
+          document.documentElement.style.setProperty('--glass-border', 'rgba(2,6,23,0.06)');
+        } else {
+          document.documentElement.style.setProperty('--bg-1', '#0b1221');
+          document.documentElement.style.setProperty('--bg-2', '#071020');
+          document.documentElement.style.setProperty('--card', 'rgba(255,255,255,0.04)');
+          document.documentElement.style.setProperty('--muted', '#9aa6b2');
+          document.documentElement.style.setProperty('--btn', '#0f1724');
+          document.documentElement.style.setProperty('--glass-border', 'rgba(255,255,255,0.06)');
+        }
+      });
+
+      // history clear
+      historyClear.addEventListener('click', () => {
+        history = [];
+        miniHistory.textContent = '0';
+      });
+
+      // init
+      update();
+    })();
+  </script>
 </body>
 </html>
