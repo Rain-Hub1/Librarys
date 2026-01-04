@@ -115,3 +115,7 @@ Tab:AddToggle({ -- Tab, Section
 ```lua
 Toggle:Set(true)
 ```
+
+#### `Full` example
+```lua
+local Orion = loadstring(game:HttpGet("https://raw.githubusercontent.com/Rain-Hub1/Librarys/refs/heads/main/Orion/Source.lua"))()
