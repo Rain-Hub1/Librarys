@@ -176,3 +176,19 @@ Orion:MakeNotification({
   Image = <string> - The icon of the notification.
   Time = <number> - The duration of the notfication.
 ]]
+
+Tab:AddDropdown({
+  Name = "Dropdown",
+  Default = "1",
+  Options = {"1", "2"},
+  Callback = function(Value)
+    print(Value)
+  end    
+})
+
+--[[
+  Name = <string> - The name of the dropdown.
+  Default = <string> - The default value of the dropdown.
+  Options = <table> - The options in the dropdown.
+  Callback = <function> - The function of the dropdown.
+]]
