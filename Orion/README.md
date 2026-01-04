@@ -40,3 +40,21 @@ local Tab = Win:MakeTab({
   Icon = <string> - The icon of the tab.
   PremiumOnly = <bool> - Makes the tab accessible to Sirus Premium users only.
 ]]
+```
+
+### `Section`
+```lua
+local Section = Tab:AddSection({
+  Name = "Section"
+})
+
+--[[
+  Name = <string> - The name of the section.
+]]
+```
+### `Divider`
+```lua
+Win:Divider()
+Tab:Divider()
+Section:Divider()
+```
