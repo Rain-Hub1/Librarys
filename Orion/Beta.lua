@@ -1127,12 +1127,15 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				local Dropdown = {Value = DropdownConfig.Default, Options = DropdownConfig.Options, Buttons = {}, Toggled = false, Type = "Dropdown", Save = DropdownConfig.Save}
 				local MaxElements = 5
+				local Dragging = false
+				local DragStart = nil
+				local StartPos = nil
 
 				if not table.find(Dropdown.Options, Dropdown.Value) then
 					Dropdown.Value = "..."
 				end
 
-				local DropdownList = MakeElement("List")
+				local DropdownList = MakeElement("List", 0, 2)
 
 				local SearchBox = AddThemeObject(Create("TextBox", {
 					Size = UDim2.new(1, -40, 0, 30),
@@ -1156,34 +1159,98 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				local SearchFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
 					Size = UDim2.new(1, -10, 0, 40),
-					Position = UDim2.new(0, 5, 0, 0)
+					Position = UDim2.new(0, 5, 0, 5)
 				}), {
 					AddThemeObject(MakeElement("Stroke"), "Stroke"),
 					SearchBox,
 					SearchIcon
 				}), "Second")
 
-				local DropdownContainer = AddThemeObject(SetProps(SetChildren(MakeElement("ScrollFrame", Color3.fromRGB(40, 40, 40), 4), {
+				local OptionsContainer = AddThemeObject(SetProps(SetChildren(MakeElement("ScrollFrame", Color3.fromRGB(40, 40, 40), 4), {
 					DropdownList,
-					MakeElement("Padding", 5, 5, 5, 45)
+					MakeElement("Padding", 5, 5, 5, 5)
 				}), {
-					Size = UDim2.new(0, 200, 0, 0),
-					Position = UDim2.new(0, 0, 1, 5),
+					Size = UDim2.new(1, -10, 1, -55),
+					Position = UDim2.new(0, 5, 0, 50),
 					ClipsDescendants = true,
-					Visible = false,
+					BackgroundTransparency = 1,
 					ZIndex = 100
 				}), "Divider")
 
-				local DropdownFloat = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
-					Size = UDim2.new(0, 200, 0, 0),
+				local DragTopLeft = SetProps(MakeElement("TFrame"), {
+					Size = UDim2.new(0, 20, 0, 20),
+					Position = UDim2.new(0, -10, 0, -10),
+					ZIndex = 101
+				})
+
+				local DragTop = SetProps(MakeElement("TFrame"), {
+					Size = UDim2.new(1, -20, 0, 10),
+					Position = UDim2.new(0, 10, 0, -10),
+					ZIndex = 101
+				})
+
+				local DragTopRight = SetProps(MakeElement("TFrame"), {
+					Size = UDim2.new(0, 20, 0, 20),
+					Position = UDim2.new(1, -10, 0, -10),
+					ZIndex = 101
+				})
+
+				local DragLeft = SetProps(MakeElement("TFrame"), {
+					Size = UDim2.new(0, 10, 1, -20),
+					Position = UDim2.new(0, -10, 0, 10),
+					ZIndex = 101
+				})
+
+				local DragRight = SetProps(MakeElement("TFrame"), {
+					Size = UDim2.new(0, 10, 1, -20),
+					Position = UDim2.new(1, 0, 0, 10),
+					ZIndex = 101
+				})
+
+				local DragBottomLeft = SetProps(MakeElement("TFrame"), {
+					Size = UDim2.new(0, 20, 0, 20),
+					Position = UDim2.new(0, -10, 1, -10),
+					ZIndex = 101
+				})
+
+				local DragBottom = SetProps(MakeElement("TFrame"), {
+					Size = UDim2.new(1, -20, 0, 10),
+					Position = UDim2.new(0, 10, 1, 0),
+					ZIndex = 101
+				})
+
+				local DragBottomRight = SetProps(MakeElement("TFrame"), {
+					Size = UDim2.new(0, 20, 0, 20),
+					Position = UDim2.new(1, -10, 1, -10),
+					ZIndex = 101
+				})
+
+				local DragCenter = SetProps(MakeElement("TFrame"), {
+					Size = UDim2.new(1, 0, 0, 40),
+					Position = UDim2.new(0, 0, 0, 5),
+					ZIndex = 101
+				})
+
+				local DropdownFloat = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 8), {
+					Size = UDim2.new(0, 250, 0, 0),
 					Position = UDim2.new(0, 0, 1, 5),
 					Parent = Orion,
 					Visible = false,
-					ZIndex = 100
+					ZIndex = 100,
+					AutomaticSize = Enum.AutomaticSize.Y
 				}), {
 					AddThemeObject(MakeElement("Stroke"), "Stroke"),
 					SearchFrame,
-					DropdownContainer
+					OptionsContainer,
+					DragTopLeft,
+					DragTop,
+					DragTopRight,
+					DragLeft,
+					DragRight,
+					DragBottomLeft,
+					DragBottom,
+					DragBottomRight,
+					DragCenter
 				}), "Second")
 
 				local Click = SetProps(MakeElement("Button"), {
@@ -1237,16 +1304,88 @@ function OrionLib:MakeWindow(WindowConfig)
 				}), "Second")
 
 				AddConnection(DropdownList:GetPropertyChangedSignal("AbsoluteContentSize"), function()
-					DropdownContainer.CanvasSize = UDim2.new(0, 0, 0, DropdownList.AbsoluteContentSize.Y + 50)
-				end)  
+					local contentHeight = DropdownList.AbsoluteContentSize.Y + 10
+					local maxHeight = (MaxElements * 30) + 10
+					
+					if contentHeight > maxHeight then
+						OptionsContainer.CanvasSize = UDim2.new(0, 0, 0, contentHeight)
+						OptionsContainer.Size = UDim2.new(1, -10, 0, maxHeight)
+					else
+						OptionsContainer.CanvasSize = UDim2.new(0, 0, 0, contentHeight)
+						OptionsContainer.Size = UDim2.new(1, -10, 0, contentHeight)
+					end
+				end)
+
+				local function ClampToScreen(position, size)
+					local screenSize = workspace.CurrentCamera.ViewportSize
+					local x = math.clamp(position.X.Offset, 10, screenSize.X - size.X.Offset - 10)
+					local y = math.clamp(position.Y.Offset, 10, screenSize.Y - 100)
+					return UDim2.new(0, x, 0, y)
+				end
 
 				local function UpdateDropdownPosition()
-					if Dropdown.Toggled then
+					if Dropdown.Toggled and not Dragging then
 						local AbsPos = DropdownFrame.AbsolutePosition
 						local AbsSize = DropdownFrame.AbsoluteSize
-						DropdownFloat.Position = UDim2.new(0, AbsPos.X, 0, AbsPos.Y + AbsSize.Y + 5)
+						local screenSize = workspace.CurrentCamera.ViewportSize
+						local dropSize = DropdownFloat.AbsoluteSize
+						
+						local x = AbsPos.X
+						local y = AbsPos.Y + AbsSize.Y + 5
+						
+						if x + dropSize.X > screenSize.X - 10 then
+							x = screenSize.X - dropSize.X - 10
+						end
+						
+						if y + dropSize.Y > screenSize.Y - 10 then
+							y = AbsPos.Y - dropSize.Y - 5
+							if y < 10 then
+								y = 10
+							end
+						end
+						
+						DropdownFloat.Position = UDim2.new(0, x, 0, y)
 					end
 				end
+
+				local function SetupDrag(dragFrame)
+					dragFrame.InputBegan:Connect(function(input)
+						if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+							Dragging = true
+							DragStart = input.Position
+							StartPos = DropdownFloat.Position
+						end
+					end)
+					
+					dragFrame.InputEnded:Connect(function(input)
+						if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+							Dragging = false
+						end
+					end)
+				end
+
+				SetupDrag(DragTopLeft)
+				SetupDrag(DragTop)
+				SetupDrag(DragTopRight)
+				SetupDrag(DragLeft)
+				SetupDrag(DragRight)
+				SetupDrag(DragBottomLeft)
+				SetupDrag(DragBottom)
+				SetupDrag(DragBottomRight)
+				SetupDrag(DragCenter)
+
+				AddConnection(UserInputService.InputChanged, function(input)
+					if Dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+						local delta = input.Position - DragStart
+						local newPos = UDim2.new(
+							StartPos.X.Scale,
+							StartPos.X.Offset + delta.X,
+							StartPos.Y.Scale,
+							StartPos.Y.Offset + delta.Y
+						)
+						DropdownFloat.Position = ClampToScreen(newPos, DropdownFloat.Size)
+					end
+				end)
 
 				local function FilterOptions(searchText)
 					for option, button in pairs(Dropdown.Buttons) do
@@ -1272,10 +1411,11 @@ function OrionLib:MakeWindow(WindowConfig)
 								Name = "Title"
 							}), "Text")
 						}), {
-							Parent = DropdownContainer,
+							Parent = OptionsContainer,
 							Size = UDim2.new(1, 0, 0, 28),
 							BackgroundTransparency = 1,
-							ClipsDescendants = true
+							ClipsDescendants = true,
+							ZIndex = 100
 						}), "Divider")
 
 						AddConnection(OptionBtn.MouseButton1Click, function()
@@ -1317,6 +1457,65 @@ function OrionLib:MakeWindow(WindowConfig)
 					for _, v in pairs(Dropdown.Buttons) do
 						TweenService:Create(v,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{BackgroundTransparency = 1}):Play()
 						TweenService:Create(v.Title,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{TextTransparency = 0.4}):Play()
+					end	
+					TweenService:Create(Dropdown.Buttons[Value],TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{BackgroundTransparency = 0}):Play()
+					TweenService:Create(Dropdown.Buttons[Value].Title,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{TextTransparency = 0}):Play()
+					
+					TweenService:Create(CheckIcon, TweenInfo.new(.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {ImageTransparency = 0, Size = UDim2.new(0, 18, 0, 18)}):Play()
+					TweenService:Create(CheckIcon, TweenInfo.new(.2, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position = UDim2.new(1, -30, 0.5, 0)}):Play()
+					
+					TweenService:Create(DropdownFrame.F.Selected, TweenInfo.new(.2, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position = UDim2.new(0, 12, 0, 0)}):Play()
+					
+					return DropdownConfig.Callback(Dropdown.Value)
+				end
+
+				AddConnection(Click.MouseButton1Click, function()
+					Dropdown.Toggled = not Dropdown.Toggled
+					TweenService:Create(DropdownFrame.F.Ico,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Rotation = Dropdown.Toggled and 180 or 0}):Play()
+					
+					if Dropdown.Toggled then
+						UpdateDropdownPosition()
+						DropdownFloat.Visible = true
+						SearchBox.Text = ""
+						wait(0.05)
+						UpdateDropdownPosition()
+					else
+						DropdownFloat.Visible = false
+					end
+				end)
+
+				AddConnection(UserInputService.InputBegan, function(input)
+					if Dropdown.Toggled and not Dragging and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
+						local mousePos = UserInputService:GetMouseLocation()
+						local dropPos = DropdownFloat.AbsolutePosition
+						local dropSize = DropdownFloat.AbsoluteSize
+						local framePos = DropdownFrame.AbsolutePosition
+						local frameSize = DropdownFrame.AbsoluteSize
+						
+						if not (mousePos.X >= dropPos.X and mousePos.X <= dropPos.X + dropSize.X and 
+								mousePos.Y >= dropPos.Y and mousePos.Y <= dropPos.Y + dropSize.Y) and
+						   not (mousePos.X >= framePos.X and mousePos.X <= framePos.X + frameSize.X and 
+								mousePos.Y >= framePos.Y and mousePos.Y <= framePos.Y + frameSize.Y) then
+							Dropdown.Toggled = false
+							TweenService:Create(DropdownFrame.F.Ico,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Rotation = 0}):Play()
+							DropdownFloat.Visible = false
+						end
+					end
+				end)
+
+				AddConnection(RunService.RenderStepped, function()
+					if Dropdown.Toggled and not Dragging then
+						UpdateDropdownPosition()
+					end
+				end)
+
+				Dropdown:Refresh(Dropdown.Options, false)
+				Dropdown:Set(Dropdown.Value)
+				if DropdownConfig.Flag then				
+					OrionLib.Flags[DropdownConfig.Flag] = Dropdown
+				end
+				return Dropdown
+			end.Quad, Enum.EasingDirection.Out),{TextTransparency = 0.4}):Play()
 					end	
 					TweenService:Create(Dropdown.Buttons[Value],TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{BackgroundTransparency = 0}):Play()
 					TweenService:Create(Dropdown.Buttons[Value].Title,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{TextTransparency = 0}):Play()
@@ -1857,17 +2056,17 @@ function OrionLib:MakeWindow(WindowConfig)
 		return ElementFunction   
 	end  
 	
-	OrionLib:MakeNotification({
-		Name = "UI Library Upgrade",
-		Content = "New UI Library Available at sirius.menu/discord and sirius.menu/rayfield",
-		Time = 5
-	})
+  OrionLib:MakeNotification({
+    Name = "UI Library Upgrade",
+    Content = "New UI Library Available at sirius.menu/discord and sirius.menu/rayfield",
+    Time = 5
+  })
 	
-	return WindowFunction
+  return WindowFunction
 end   
 
 function OrionLib:Destroy()
-	Orion:Destroy()
+  Orion:Destroy()
 end
 
 return OrionLib
