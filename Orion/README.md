@@ -75,3 +75,39 @@ Orion:MakeNotification({
   Time = <number> - The duration of the notfication.
 ]]
 ```
+
+### `Button`
+```lua
+Tab:AddButton({ -- Tab, Section
+  Name = "Button!",
+  Callback = function()
+    print("button pressed")
+  end    
+})
+
+--[[
+  Name = <string> - The name of the button.
+  Callback = <function> - The function of the button.
+]]
+```
+### `Toggle`
+```lua
+Tab:AddToggle({ -- Tab, Section
+  Name = "This is a toggle!",
+  Default = false,
+  Callback = function(Value)
+    print(Value)
+  end    
+})
+
+--[[
+  Name = <string> - The name of the toggle.
+  Default = <bool> - The default value of the toggle.
+  Callback = <function> - The function of the toggle.
+]]
+```
+
+### `Toggle { SetValue }`
+```lua
+Toggle:Set(true)
+```
