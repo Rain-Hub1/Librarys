@@ -1509,6 +1509,14 @@ function OrionLib:MakeWindow(WindowConfig)
 					end
 				end)
 
+				AddConnection(UserInputService.InputEnded, function(input)
+					if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+						if Dragging then
+							Dragging = false
+						end
+					end
+				end)
+
 				Dropdown:Refresh(Dropdown.Options, false)
 				Dropdown:Set(Dropdown.Value)
 				if DropdownConfig.Flag then				
@@ -2056,17 +2064,17 @@ function OrionLib:MakeWindow(WindowConfig)
 		return ElementFunction   
 	end  
 	
-  OrionLib:MakeNotification({
-    Name = "UI Library Upgrade",
-    Content = "New UI Library Available at sirius.menu/discord and sirius.menu/rayfield",
-    Time = 5
-  })
+	OrionLib:MakeNotification({
+		Name = "UI Library Upgrade",
+		Content = "New UI Library Available at sirius.menu/discord and sirius.menu/rayfield",
+		Time = 5
+	})
 	
-  return WindowFunction
+	return WindowFunction
 end   
 
 function OrionLib:Destroy()
-  Orion:Destroy()
+	Orion:Destroy()
 end
 
 return OrionLib
