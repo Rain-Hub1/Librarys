@@ -5,6 +5,7 @@
 local Orion = loadstring(game:HttpGet("https://raw.githubusercontent.com/Rain-Hub1/Librarys/refs/heads/main/Orion/Source.lua"))()
 ```
 
+---
 ### `Window`
 ```lua
 local Win = Orion:MakeWindow({
@@ -27,6 +28,7 @@ local Win = Orion:MakeWindow({
 ]]
 ```
 
+---
 ### `Tab`
 ```lua
 local Tab = Win:MakeTab({
@@ -52,6 +54,7 @@ local Section = Tab:AddSection({
   Name = <string> - The name of the section.
 ]]
 ```
+---
 ### `Divider`
 ```lua
 Win:Divider()
@@ -59,6 +62,7 @@ Tab:Divider()
 Section:Divider()
 ```
 
+---
 ### `Notify`
 ```lua
 Orion:MakeNotification({
