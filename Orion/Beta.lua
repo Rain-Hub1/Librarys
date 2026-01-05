@@ -1139,63 +1139,117 @@ function OrionLib:MakeWindow(WindowConfig)
 
         local DropdownList = MakeElement("List")
 
+        local SearchBox = AddThemeObject(Create("TextBox", {
+          Size = UDim2.new(1, -40, 0, 30),
+          Position = UDim2.new(0, 35, 0, 5),
+          BackgroundTransparency = 0.9,
+          TextColor3 = Color3.fromRGB(255, 255, 255),
+          PlaceholderColor3 = Color3.fromRGB(150, 150, 150),
+          PlaceholderText = "Pesquisar...",
+          Font = Enum.Font.Gotham,
+          TextSize = 13,
+          TextXAlignment = Enum.TextXAlignment.Left,
+          ClearTextOnFocus = false
+        }), "Text")
+
+        local SearchIcon = AddThemeObject(SetProps(MakeElement("Image", "rbxassetid://96790569131548"), {
+          Size = UDim2.new(0, 18, 0, 18),
+          Position = UDim2.new(0, 10, 0, 11),
+          ImageColor3 = Color3.fromRGB(255, 255, 255)
+        }), "Text")
+
+        local SearchContainer = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
+          Size = UDim2.new(1, -10, 0, 40),
+          Position = UDim2.new(0, 5, 0, 5)
+        }), {
+          AddThemeObject(MakeElement("Stroke"), "Stroke"),
+          SearchIcon,
+          SearchBox
+        }), "Main")
+
         local DropdownContainer = AddThemeObject(SetProps(SetChildren(MakeElement("ScrollFrame", Color3.fromRGB(40, 40, 40), 4), {
           DropdownList
         }), {
-          Parent = ItemParent,
-          Position = UDim2.new(0, 0, 0, 38),
-          Size = UDim2.new(1, 0, 1, -38),
+          Position = UDim2.new(0, 5, 0, 50),
+          Size = UDim2.new(1, -10, 1, -55),
           ClipsDescendants = true
         }), "Divider")
+
+        local FloatingMenu = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 8), {
+          Size = UDim2.new(0, 250, 0, 0),
+          Position = UDim2.new(0, 0, 1, 5),
+          Parent = Orion,
+          Visible = false,
+          ZIndex = 100,
+          ClipsDescendants = true
+        }), {
+          AddThemeObject(MakeElement("Stroke"), "Stroke"),
+          SearchContainer,
+          DropdownContainer
+        }), "Second")
 
         local Click = SetProps(MakeElement("Button"), {
           Size = UDim2.new(1, 0, 1, 0)
         })
 
+        local CheckIcon = SetProps(MakeElement("Image", "rbxassetid://79495752298582"), {
+          Size = UDim2.new(0, 0, 0, 0),
+          Position = UDim2.new(1, -30, 0.5, 0),
+          AnchorPoint = Vector2.new(0.5, 0.5),
+          ImageColor3 = Color3.fromRGB(255, 255, 255),
+          ImageTransparency = 1,
+          Name = "Check"
+        })
+
+        local SelectedText = AddThemeObject(SetProps(MakeElement("Label", "Selected", 13), {
+          Size = UDim2.new(1, -70, 1, 0),
+          Position = UDim2.new(0, 35, 0, 0),
+          Font = Enum.Font.Gotham,
+          Name = "Selected",
+          TextXAlignment = Enum.TextXAlignment.Left
+        }), "TextDark")
+
         local DropdownFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
           Size = UDim2.new(1, 0, 0, 38),
           Parent = ItemParent,
-          ClipsDescendants = true
+          ClipsDescendants = false
         }), {
-          DropdownContainer,
-          SetProps(SetChildren(MakeElement("TFrame"), {
-            AddThemeObject(SetProps(MakeElement("Label", DropdownConfig.Name, 15), {
-              Size = UDim2.new(1, -12, 1, 0),
-              Position = UDim2.new(0, 12, 0, 0),
-              Font = Enum.Font.GothamBold,
-              Name = "Content"
-            }), "Text"),
-            AddThemeObject(SetProps(MakeElement("Image", "rbxassetid://7072706796"), {
-              Size = UDim2.new(0, 20, 0, 20),
-              AnchorPoint = Vector2.new(0, 0.5),
-              Position = UDim2.new(1, -30, 0.5, 0),
-              ImageColor3 = Color3.fromRGB(240, 240, 240),
-              Name = "Ico"
-            }), "TextDark"),
-            AddThemeObject(SetProps(MakeElement("Label", "Selected", 13), {
-              Size = UDim2.new(1, -40, 1, 0),
-              Font = Enum.Font.Gotham,
-              Name = "Selected",
-              TextXAlignment = Enum.TextXAlignment.Right
-            }), "TextDark"),
-            AddThemeObject(SetProps(MakeElement("Frame"), {
-              Size = UDim2.new(1, 0, 0, 1),
-              Position = UDim2.new(0, 0, 1, -1),
-              Name = "Line",
-              Visible = false
-            }), "Stroke"),
-            Click
-          }), {
-            Size = UDim2.new(1, 0, 0, 38),
-            ClipsDescendants = true,
-            Name = "F"
-          }),
+          AddThemeObject(SetProps(MakeElement("Label", DropdownConfig.Name, 15), {
+            Size = UDim2.new(1, -12, 1, 0),
+            Position = UDim2.new(0, 12, 0, 0),
+            Font = Enum.Font.GothamBold,
+            Name = "Content"
+          }), "Text"),
+          AddThemeObject(SetProps(MakeElement("Image", "rbxassetid://7072706796"), {
+            Size = UDim2.new(0, 20, 0, 20),
+            AnchorPoint = Vector2.new(0, 0.5),
+            Position = UDim2.new(1, -30, 0.5, 0),
+            ImageColor3 = Color3.fromRGB(240, 240, 240),
+            Name = "Ico"
+          }), "TextDark"),
+          SelectedText,
+          CheckIcon,
           AddThemeObject(MakeElement("Stroke"), "Stroke"),
-          MakeElement("Corner")
+          MakeElement("Corner"),
+          Click
         }), "Second")
 
         AddConnection(DropdownList:GetPropertyChangedSignal("AbsoluteContentSize"), function()
           DropdownContainer.CanvasSize = UDim2.new(0, 0, 0, DropdownList.AbsoluteContentSize.Y)
+        end)
+
+        local function UpdateSearch(searchText)
+          for option, button in pairs(Dropdown.Buttons) do
+            if searchText == "" or string.find(string.lower(option), string.lower(searchText)) then
+              button.Visible = true
+            else
+              button.Visible = false
+            end
+          end
+        end
+
+        AddConnection(SearchBox:GetPropertyChangedSignal("Text"), function()
+          UpdateSearch(SearchBox.Text)
         end)
 
         local function AddOptions(Options)
@@ -1238,7 +1292,9 @@ function OrionLib:MakeWindow(WindowConfig)
         function Dropdown:Set(Value)
           if not table.find(Dropdown.Options, Value) then
             Dropdown.Value = "..."
-            DropdownFrame.F.Selected.Text = Dropdown.Value
+            SelectedText.Text = Dropdown.Value
+            CheckIcon.ImageTransparency = 1
+            TweenService:Create(CheckIcon, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 0, 0, 0)}):Play()
             for _, v in pairs(Dropdown.Buttons) do
               TweenService:Create(v,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{BackgroundTransparency = 1}):Play()
               TweenService:Create(v.Title,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{TextTransparency = 0.4}):Play()
@@ -1247,7 +1303,16 @@ function OrionLib:MakeWindow(WindowConfig)
           end
 
           Dropdown.Value = Value
-          DropdownFrame.F.Selected.Text = Dropdown.Value
+          SelectedText.Text = Dropdown.Value
+
+          TweenService:Create(CheckIcon, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+            Size = UDim2.new(0, 18, 0, 18),
+            ImageTransparency = 0
+          }):Play()
+
+          TweenService:Create(SelectedText, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Position = UDim2.new(0, 35, 0, 0)
+          }):Play()
 
           for _, v in pairs(Dropdown.Buttons) do
             TweenService:Create(v,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{BackgroundTransparency = 1}):Play()
@@ -1255,17 +1320,56 @@ function OrionLib:MakeWindow(WindowConfig)
           end
           TweenService:Create(Dropdown.Buttons[Value],TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{BackgroundTransparency = 0}):Play()
           TweenService:Create(Dropdown.Buttons[Value].Title,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{TextTransparency = 0}):Play()
+
+          Dropdown.Toggled = false
+          FloatingMenu.Visible = false
+          TweenService:Create(FloatingMenu, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 250, 0, 0)}):Play()
+          TweenService:Create(DropdownFrame.Ico,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Rotation = 0}):Play()
+
           return DropdownConfig.Callback(Dropdown.Value)
         end
 
         AddConnection(Click.MouseButton1Click, function()
           Dropdown.Toggled = not Dropdown.Toggled
-          DropdownFrame.F.Line.Visible = Dropdown.Toggled
-          TweenService:Create(DropdownFrame.F.Ico,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Rotation = Dropdown.Toggled and 180 or 0}):Play()
-          if #Dropdown.Options > MaxElements then
-            TweenService:Create(DropdownFrame,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Size = Dropdown.Toggled and UDim2.new(1, 0, 0, 38 + (MaxElements * 28)) or UDim2.new(1, 0, 0, 38)}):Play()
+
+          if Dropdown.Toggled then
+            local dropdownPos = DropdownFrame.AbsolutePosition
+            local dropdownSize = DropdownFrame.AbsoluteSize
+            FloatingMenu.Position = UDim2.new(0, dropdownPos.X, 0, dropdownPos.Y + dropdownSize.Y + 5)
+            FloatingMenu.Visible = true
+            SearchBox.Text = ""
+
+            local menuHeight = math.min(#Dropdown.Options * 28 + 55, MaxElements * 28 + 55)
+            TweenService:Create(FloatingMenu, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 250, 0, menuHeight)}):Play()
           else
-            TweenService:Create(DropdownFrame,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Size = Dropdown.Toggled and UDim2.new(1, 0, 0, DropdownList.AbsoluteContentSize.Y + 38) or UDim2.new(1, 0, 0, 38)}):Play()
+            TweenService:Create(FloatingMenu, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 250, 0, 0)}):Play()
+            wait(0.2)
+            FloatingMenu.Visible = false
+          end
+
+          TweenService:Create(DropdownFrame.Ico,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Rotation = Dropdown.Toggled and 180 or 0}):Play()
+        end)
+
+        AddConnection(UserInputService.InputBegan, function(input)
+          if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            local mousePos = UserInputService:GetMouseLocation()
+            local floatingPos = FloatingMenu.AbsolutePosition
+            local floatingSize = FloatingMenu.AbsoluteSize
+            local dropdownPos = DropdownFrame.AbsolutePosition
+            local dropdownSize = DropdownFrame.AbsoluteSize
+
+            local isInsideFloating = mousePos.X >= floatingPos.X and mousePos.X <= floatingPos.X + floatingSize.X and
+                                     mousePos.Y >= floatingPos.Y and mousePos.Y <= floatingPos.Y + floatingSize.Y
+            local isInsideDropdown = mousePos.X >= dropdownPos.X and mousePos.X <= dropdownPos.X + dropdownSize.X and
+                                     mousePos.Y >= dropdownPos.Y and mousePos.Y <= dropdownPos.Y + dropdownSize.Y
+
+            if Dropdown.Toggled and not isInsideFloating and not isInsideDropdown then
+              Dropdown.Toggled = false
+              TweenService:Create(FloatingMenu, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 250, 0, 0)}):Play()
+              wait(0.2)
+              FloatingMenu.Visible = false
+              TweenService:Create(DropdownFrame.Ico,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Rotation = 0}):Play()
+            end
           end
         end)
 
