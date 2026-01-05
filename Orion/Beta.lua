@@ -1192,7 +1192,7 @@ function OrionLib:MakeWindow(WindowConfig)
           Size = UDim2.new(1, 0, 1, 0)
         })
 
-        local CheckIcon = SetProps(MakeElement("Image", "rbxassetid://79495752298582"), {
+        local CheckIcon = SetProps(MakeElement("Image", "rbxassetid://3944680095"), {
           Size = UDim2.new(0, 0, 0, 0),
           Position = UDim2.new(1, -30, 0.5, 0),
           AnchorPoint = Vector2.new(0.5, 0.5),
@@ -1254,7 +1254,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
         local function AddOptions(Options)
           for _, Option in pairs(Options) do
-            local OptionCheckIcon = SetProps(MakeElement("Image", "rbxassetid://10709790644"), {
+            local OptionCheckIcon = SetProps(MakeElement("Image", "rbxassetid://3944680095"), {
               Size = UDim2.new(0, 0, 0, 0),
               Position = UDim2.new(1, -20, 0.5, 0),
               AnchorPoint = Vector2.new(0.5, 0.5),
@@ -1345,7 +1345,7 @@ function OrionLib:MakeWindow(WindowConfig)
           if Dropdown.Buttons[Value] then
             TweenService:Create(Dropdown.Buttons[Value],TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{BackgroundTransparency = 0}):Play()
             TweenService:Create(Dropdown.Buttons[Value].Title,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{TextTransparency = 0}):Play()
-            
+
             if Dropdown.Buttons[Value]:FindFirstChild("OptionCheck") then
               TweenService:Create(Dropdown.Buttons[Value].OptionCheck, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
                 Size = UDim2.new(0, 16, 0, 16),
@@ -1379,6 +1379,35 @@ function OrionLib:MakeWindow(WindowConfig)
         end)
 
         AddConnection(UserInputService.InputBegan, function(input)
+          if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            local mousePos = UserInputService:GetMouseLocation()
+            local floatingPos = FloatingMenu.AbsolutePosition
+            local floatingSize = FloatingMenu.AbsoluteSize
+            local dropdownPos = DropdownFrame.AbsolutePosition
+            local dropdownSize = DropdownFrame.AbsoluteSize
+
+            local isInsideFloating = mousePos.X >= floatingPos.X and mousePos.X <= floatingPos.X + floatingSize.X and
+                                     mousePos.Y >= floatingPos.Y and mousePos.Y <= floatingPos.Y + floatingSize.Y
+            local isInsideDropdown = mousePos.X >= dropdownPos.X and mousePos.X <= dropdownPos.X + dropdownSize.X and
+                                     mousePos.Y >= dropdownPos.Y and mousePos.Y <= dropdownPos.Y + dropdownSize.Y
+
+            if Dropdown.Toggled and not isInsideFloating and not isInsideDropdown then
+              Dropdown.Toggled = false
+              TweenService:Create(FloatingMenu, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 250, 0, 0)}):Play()
+              wait(0.2)
+              FloatingMenu.Visible = false
+              TweenService:Create(DropdownFrame.Ico,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Rotation = 0}):Play()
+            end
+          end
+        end)
+
+        Dropdown:Refresh(Dropdown.Options, false)
+        Dropdown:Set(Dropdown.Value)
+        if DropdownConfig.Flag then
+          OrionLib.Flags[DropdownConfig.Flag] = Dropdown
+        end
+        return Dropdown
+      endAddConnection(UserInputService.InputBegan, function(input)
           if input.UserInputType == Enum.UserInputType.MouseButton1 then
             local mousePos = UserInputService:GetMouseLocation()
             local floatingPos = FloatingMenu.AbsolutePosition
