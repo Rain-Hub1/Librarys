@@ -1152,7 +1152,7 @@ function OrionLib:MakeWindow(WindowConfig)
           ClearTextOnFocus = false
         }), "Text")
 
-        local SearchIcon = AddThemeObject(SetProps(MakeElement("Image", "rbxassetid://96790569131548"), {
+        local SearchIcon = AddThemeObject(SetProps(MakeElement("Image", "rbxassetid://10734943674"), {
           Size = UDim2.new(0, 18, 0, 18),
           Position = UDim2.new(0, 10, 0, 11),
           ImageColor3 = Color3.fromRGB(255, 255, 255)
@@ -1254,13 +1254,24 @@ function OrionLib:MakeWindow(WindowConfig)
 
         local function AddOptions(Options)
           for _, Option in pairs(Options) do
+            local OptionCheckIcon = SetProps(MakeElement("Image", "rbxassetid://10709790644"), {
+              Size = UDim2.new(0, 0, 0, 0),
+              Position = UDim2.new(1, -20, 0.5, 0),
+              AnchorPoint = Vector2.new(0.5, 0.5),
+              ImageColor3 = Color3.fromRGB(255, 255, 255),
+              ImageTransparency = 1,
+              Name = "OptionCheck"
+            })
+
             local OptionBtn = AddThemeObject(SetProps(SetChildren(MakeElement("Button", Color3.fromRGB(40, 40, 40)), {
               MakeElement("Corner", 0, 6),
               AddThemeObject(SetProps(MakeElement("Label", Option, 13, 0.4), {
                 Position = UDim2.new(0, 8, 0, 0),
-                Size = UDim2.new(1, -8, 1, 0),
-                Name = "Title"
-              }), "Text")
+                Size = UDim2.new(1, -30, 1, 0),
+                Name = "Title",
+                TextXAlignment = Enum.TextXAlignment.Left
+              }), "Text"),
+              OptionCheckIcon
             }), {
               Parent = DropdownContainer,
               Size = UDim2.new(1, 0, 0, 28),
@@ -1298,6 +1309,12 @@ function OrionLib:MakeWindow(WindowConfig)
             for _, v in pairs(Dropdown.Buttons) do
               TweenService:Create(v,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{BackgroundTransparency = 1}):Play()
               TweenService:Create(v.Title,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{TextTransparency = 0.4}):Play()
+              if v:FindFirstChild("OptionCheck") then
+                TweenService:Create(v.OptionCheck, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                  Size = UDim2.new(0, 0, 0, 0),
+                  ImageTransparency = 1
+                }):Play()
+              end
             end
             return
           end
@@ -1317,14 +1334,25 @@ function OrionLib:MakeWindow(WindowConfig)
           for _, v in pairs(Dropdown.Buttons) do
             TweenService:Create(v,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{BackgroundTransparency = 1}):Play()
             TweenService:Create(v.Title,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{TextTransparency = 0.4}):Play()
+            if v:FindFirstChild("OptionCheck") then
+              TweenService:Create(v.OptionCheck, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                Size = UDim2.new(0, 0, 0, 0),
+                ImageTransparency = 1
+              }):Play()
+            end
           end
-          TweenService:Create(Dropdown.Buttons[Value],TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{BackgroundTransparency = 0}):Play()
-          TweenService:Create(Dropdown.Buttons[Value].Title,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{TextTransparency = 0}):Play()
 
-          Dropdown.Toggled = false
-          FloatingMenu.Visible = false
-          TweenService:Create(FloatingMenu, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 250, 0, 0)}):Play()
-          TweenService:Create(DropdownFrame.Ico,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Rotation = 0}):Play()
+          if Dropdown.Buttons[Value] then
+            TweenService:Create(Dropdown.Buttons[Value],TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{BackgroundTransparency = 0}):Play()
+            TweenService:Create(Dropdown.Buttons[Value].Title,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{TextTransparency = 0}):Play()
+            
+            if Dropdown.Buttons[Value]:FindFirstChild("OptionCheck") then
+              TweenService:Create(Dropdown.Buttons[Value].OptionCheck, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+                Size = UDim2.new(0, 16, 0, 16),
+                ImageTransparency = 0
+              }):Play()
+            end
+          end
 
           return DropdownConfig.Callback(Dropdown.Value)
         end
@@ -1369,6 +1397,28 @@ function OrionLib:MakeWindow(WindowConfig)
               wait(0.2)
               FloatingMenu.Visible = false
               TweenService:Create(DropdownFrame.Ico,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Rotation = 0}):Play()
+            end
+          end
+        end)
+
+        Dropdown:Refresh(Dropdown.Options, false)
+        Dropdown:Set(Dropdown.Value)
+        if DropdownConfig.Flag then
+          OrionLib.Flags[DropdownConfig.Flag] = Dropdown
+        end
+        return Dropdown
+      endTweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Rotation = 0}):Play()
+            end
+          end
+        end)
+
+        Dropdown:Refresh(Dropdown.Options, false)
+        Dropdown:Set(Dropdown.Value)
+        if DropdownConfig.Flag then
+          OrionLib.Flags[DropdownConfig.Flag] = Dropdown
+        end
+        return Dropdown
+      endTweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Rotation = 0}):Play()
             end
           end
         end)
